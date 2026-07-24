@@ -14,10 +14,11 @@ export default function Home() {
     })
   }, [router])
 
+
   return (
-    <div style={{ minHeight: '100vh', background: '#0D0F1A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#434668', flexDirection: 'column', gap: 14 }}>
-      <i className="ti ti-loader-2" style={{ fontSize: 32, color: '#818CF8' }} />
-      <span style={{ fontSize: 14 }}>Memuat...</span>
+    <div style={{ minHeight: '100vh', background:'#000000', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 14, color:'#444' }}>
+      <i className="ti ti-loader-2" style={{ fontSize: 32, color:'#6366F1'  }} />
+      <span style={{ fontSize: 14 }}>Memuat data...</span>
     </div>
   )
 }

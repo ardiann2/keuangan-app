@@ -15,13 +15,25 @@ function DonutChart({ segments, size = 180, D }) {
     </div>
   );
 
-  let startDeg = 0;
-  const slices = segments.filter(s => s.value > 0).map((seg, i) => {
-    const deg = (seg.value / total) * 360;
-    const slice = { ...seg, startDeg, endDeg: startDeg + deg, index: i };
-    startDeg += deg;
-    return slice;
-  });
+    const slices = [];
+
+    let current = 0;
+
+    for (const [i, seg] of segments.entries()) {
+      if (seg.value <= 0) continue;
+
+      const deg = (seg.value / total) * 360;
+
+      slices.push({
+        ...seg,
+        startDeg: current,
+        endDeg: current + deg,
+        index: i,
+      });
+
+      current += deg;
+    }
+
   const hov = hovered !== null ? slices[hovered] : null;
 
   return (
@@ -120,8 +132,8 @@ function Section({ title, icon, children, D }) {
   );
 }
 
-export default function Analytics({ txs, isDark }) {
-  const D = getTheme(isDark)
+export default function Analytics({ txs }) {
+  const D = getTheme()
   const [month, setMonth] = useState(nowYM());
 
   const months   = [...new Set([nowYM(), ...txs.map(t => getYM(t.date))])].sort((a,b) => b.localeCompare(a));
@@ -144,7 +156,7 @@ export default function Analytics({ txs, isDark }) {
 
   const donutData = Object.entries(CATS).map(([key,c]) => ({ label:c.label, value:sum[key]||0, color:c.solid })).filter(s => s.value > 0);
 
-  const topBarBg = isDark ? "rgba(0,0,0,0.95)" : "rgba(242,243,247,0.95)";
+  const topBarBg = "rgba(0,0,0,0.95)";
 
   return (
     <div style={{ minHeight:"100vh", background:D.bg }}>

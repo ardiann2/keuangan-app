@@ -3,7 +3,7 @@ import { useState } from "react";
 import { CATS, fmt, fmtShort, fmtDate, getYM, nowYM, ymFull, ymShort } from '@/lib/utils';
 import { getTheme } from '@/lib/theme'
 
-function TxForm({ initial = null, onSave, onCancel, D, isDark }) {
+function TxForm({ initial = null, onSave, onCancel, D }) {
   const isEdit = !!initial;
   const [form, setForm] = useState({
     amount:      initial ? String(initial.amount) : "",
@@ -26,7 +26,7 @@ function TxForm({ initial = null, onSave, onCancel, D, isDark }) {
       <div onClick={onCancel} style={{ position:"fixed", inset:0, zIndex:40, background:"rgba(0,0,0,0.7)", backdropFilter:"blur(6px)", animation:"fadeIn 0.2s ease" }} />
       <div style={{
         position:"fixed", bottom:0, left:0, right:0, zIndex:50,
-        background: isDark ? "#111111" : "#FFFFFF",
+        background:  "#111111" ,
         borderRadius:"22px 22px 0 0",
         borderTop:`1.5px solid ${D.border}`, borderLeft:`1.5px solid ${D.border}`, borderRight:`1.5px solid ${D.border}`,
         padding:"0 20px calc(80px + env(safe-area-inset-bottom, 0px))",
@@ -218,7 +218,7 @@ function TxItem({ tx, onEdit, onDelete, D }) {
   );
 }
 
-function NetWorthCard({ income, outcome, saving, asset, D, isDark }) {
+function NetWorthCard({ income, outcome, saving, asset, D }) {
   const saldo = income - outcome;
   const netWorth = saldo + saving + asset;
   const isPos = netWorth >= 0;
@@ -285,8 +285,8 @@ function NetWorthCard({ income, outcome, saving, asset, D, isDark }) {
   );
 }
 
-export default function Dashboard({ txs, addTx, updateTx, deleteTx, isDark }) {
-  const D = getTheme(isDark)
+export default function Dashboard({ txs, addTx, updateTx, deleteTx}) {
+  const D = getTheme()
   const [month,       setMonth]       = useState(nowYM());
   const [mode,        setMode]        = useState(null);
   const [editTx,      setEditTx]      = useState(null);
@@ -316,7 +316,7 @@ export default function Dashboard({ txs, addTx, updateTx, deleteTx, isDark }) {
   const isPositive = saldo >= 0;
   const allSum   = txs.reduce((a,t) => ({ ...a, [t.category]:(a[t.category]||0)+t.amount }), {});
 
-  const topBarBg = isDark ? "rgba(0,0,0,0.95)" : "rgba(242,243,247,0.95)";
+  const topBarBg = "rgba(0,0,0,0.95)";
 
   return (
     <div style={{ minHeight:"100vh", background:D.bg }}>
@@ -337,7 +337,7 @@ export default function Dashboard({ txs, addTx, updateTx, deleteTx, isDark }) {
       </div>
 
       <div style={{ maxWidth:680, margin:"0 auto", padding:"20px 16px 24px" }}>
-        {mode && <TxForm D={D} isDark={isDark} initial={mode==="edit"?editTx:null} onSave={handleSave} onCancel={closeForm} />}
+        {mode && <TxForm D={D}  initial={mode==="edit"?editTx:null} onSave={handleSave} onCancel={closeForm} />}
 
         {/* Month Pills */}
         <div style={{ display:"flex", gap:7, overflowX:"auto", paddingBottom:4, marginBottom:14, scrollbarWidth:"none" }}>
@@ -362,7 +362,7 @@ export default function Dashboard({ txs, addTx, updateTx, deleteTx, isDark }) {
           <p style={{ margin:"8px 0 20px", fontSize:38, fontWeight:800, letterSpacing:"-0.03em", lineHeight:1, color:isPositive?D.income.solid:D.outcome.solid }}>
             {fmtShort(saldo)}
           </p>
-          <div style={{ display:"flex", background:isDark?"rgba(255,255,255,0.04)":"rgba(0,0,0,0.04)", borderRadius:12, overflow:"hidden" }}>
+          <div style={{ display:"flex", background:"rgba(255,255,255,0.04)", borderRadius:12, overflow:"hidden" }}>
             {[
               { label:"Pemasukan",   value:`+${fmtShort(income)}`,  color:D.income.solid  },
               { label:"Pengeluaran", value:`−${fmtShort(outcome)}`, color:D.outcome.solid },
@@ -397,7 +397,7 @@ export default function Dashboard({ txs, addTx, updateTx, deleteTx, isDark }) {
           <CategoryDetail D={D} cat={activeCat} txs={txs} month={month} onClose={() => setActiveCat(null)} onEdit={(tx) => { openEdit(tx); setActiveCat(null); }} onDelete={(id) => { deleteTx(id); }} />
         )}
 
-        <NetWorthCard D={D} isDark={isDark} income={allSum.income||0} outcome={allSum.outcome||0} saving={allSum.saving||0} asset={allSum.asset||0} />
+        <NetWorthCard D={D} income={allSum.income||0} outcome={allSum.outcome||0} saving={allSum.saving||0} asset={allSum.asset||0} />
 
         <div style={{ height:1, background:D.border, margin:"4px 0 16px" }} />
 

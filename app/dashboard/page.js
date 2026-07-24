@@ -10,20 +10,6 @@ import Analytics from '@/components/Analytics'
 import Budget    from '@/components/Budget'
 import Settings  from '@/components/Settings'
 
-const D = {
-  bg:       '#0D0F1A',
-  surface:  '#131525',
-  surfaceUp:'#1A1D30',
-  surfaceHi:'#20243A',
-  border:   '#252840',
-  borderHi: '#323660',
-  textPri:  '#EEF0FF',
-  textSec:  '#7B7FA0',
-  textMuted:'#434668',
-  accent:   '#818CF8',
-  accentDim:'#1E2148',
-}
-
 async function apiFetch(path, method = 'GET', body = null) {
   const { data: { session } } = await supabase.auth.getSession()
   const token = session?.access_token
@@ -38,11 +24,11 @@ async function apiFetch(path, method = 'GET', body = null) {
   return res.json()
 }
 
-function BottomNav({ page, setPage, isDark }) {
-  const bg      = isDark ? 'rgba(0,0,0,0.96)'      : 'rgba(245,245,245,0.96)'
-  const border  = isDark ? '#2A2A2A'                : '#DDDDDD'
-  const accent  = isDark ? '#818CF8'                : '#4F46E5'
-  const muted   = isDark ? '#444444'                : '#999999'
+function BottomNav({ page, setPage }) {
+  const bg      =  'rgba(0,0,0,0.96)'     
+  const border  =  '#2A2A2A'           
+  const accent  = '#818CF8'                
+  const muted   ='#444444'               
 
   const items = [
     { id: 'dashboard', icon: 'ti-home-2',    label: 'Beranda'    },
@@ -85,9 +71,18 @@ export default function DashboardPage() {
   const [user,    setUser]    = useState(null)
   const [txs,     setTxs]     = useState([])
   const [budgets, setBudgets] = useState({})
-  const [page,    setPage]    = useState('dashboard')
+  const [page,setPage] = useState(()=>{
+  if(typeof window !== 'undefined'){
+    return localStorage.getItem('activePage') || 'dashboard'
+  }
+  return 'dashboard'
+  })
+  const changePage=(value)=>{
+  setPage(value)
+  localStorage.setItem('activePage',value)
+  }
   const [loading, setLoading] = useState(true)
-  const [isDark,  setIsDark]  = useState(true)
+  const isDark = true
   const hasFetched = useRef(false)  // ← kunci: hanya fetch sekali
 
   const loadData = useCallback(async () => {
@@ -118,6 +113,8 @@ export default function DashboardPage() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && !hasFetched.current) {
+        localStorage.removeItem('activePage')
+        setPage('dashboard')
         hasFetched.current = true
         setUser(session.user)
         loadData()
@@ -189,7 +186,10 @@ export default function DashboardPage() {
   }
 
   const handleLogout = async () => {
+    localStorage.removeItem('activePage')
+
     await supabase.auth.signOut()
+
     router.replace('/auth')
   }
 
@@ -197,21 +197,21 @@ export default function DashboardPage() {
     setIsDark(v => !v)
   }
 
-  const bgColor = isDark ? '#000000' : '#F2F3F7'
+  const bgColor = '#000000' 
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', background: bgColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 14, color: isDark ? '#444' : '#999' }}>
-      <i className="ti ti-loader-2" style={{ fontSize: 32, color: isDark ? '#6366F1' : '#4F46E5' }} />
+    <div style={{ minHeight: '100vh', background: bgColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 14, color:'#444' }}>
+      <i className="ti ti-loader-2" style={{ fontSize: 32, color:'#6366F1'  }} />
       <span style={{ fontSize: 14 }}>Memuat data...</span>
     </div>
   )
 
-  const shared = { txs, budgets, addTx, updateTx, deleteTx, saveBudget, isDark }
+  const shared = { txs, budgets, addTx, updateTx, deleteTx, saveBudget, }
 
   return (
     <div style={{ background: bgColor, minHeight: '100vh', paddingBottom: 72 }}>
       {page === 'dashboard' && <Dashboard {...shared} />}
-      {page === 'analytics' && <Analytics txs={txs} isDark={isDark} />}
+      {page === 'analytics' && <Analytics txs={txs}  />}
       {page === 'budget'    && <Budget    {...shared} />}
       {page === 'settings'  && (
         <Settings
@@ -220,11 +220,9 @@ export default function DashboardPage() {
           onLogout={handleLogout}
           onDeleteAll={deleteAll}
           userEmail={user?.email}
-          isDark={isDark}
-          onToggleTheme={toggleTheme}
         />
       )}
-      <BottomNav page={page} setPage={setPage} isDark={isDark} />
+      <BottomNav page={page} setPage={changePage} />
     </div>
   )
 }

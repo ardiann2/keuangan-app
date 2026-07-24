@@ -3,22 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import {getTheme} from "@/lib/theme"
 
-const D = {
-  bg:       '#000000',
-  surface:  '#131525',
-  surfaceUp:'#1A1D30',
-  surfaceHi:'#20243A',
-  border:   '#252840',
-  borderHi: '#323660',
-  textPri:  '#EEF0FF',
-  textSec:  '#7B7FA0',
-  textMuted:'#434668',
-  accent:   '#818CF8',
-  accentDim:'#1E2148',
-  income:  { solid:'#34D399', dim:'#0D2E22', border:'#1A5C40' },
-  outcome: { solid:'#FB7185', dim:'#2E0D16', border:'#5C1A26' },
-}
+const D = getTheme()
 
 export default function AuthPage() {
   const router = useRouter()

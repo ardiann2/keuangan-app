@@ -16,9 +16,9 @@ input[type="password"] {
   width: 100%;
   padding: 12px 15px;
   font-size: 14px;
-  border: 1.5px solid #2A2D45;
+  border: 1.5px solid #252525;
   border-radius: 12px;
-  background: #0D0F1A;
+  background: #050505;
   color: #EEF0FF;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;

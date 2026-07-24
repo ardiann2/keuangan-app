@@ -119,8 +119,8 @@ function BudgetCard({ cat, actual, budget, onSetBudget, D }) {
   );
 }
 
-export default function Budget({ txs, budgets, saveBudget, isDark }) {
-  const D = getTheme(isDark)
+export default function Budget({ txs, budgets, saveBudget}) {
+  const D = getTheme()
   const [month, setMonth] = useState(nowYM());
 
   const months   = [...new Set([nowYM(), ...txs.map(t => getYM(t.date))])].sort((a,b) => b.localeCompare(a));
@@ -139,7 +139,7 @@ export default function Budget({ txs, budgets, saveBudget, isDark }) {
     return BUDGET_TYPE[k]==="limit" ? a<=b : a>=b;
   }).length;
 
-  const topBarBg = isDark ? "rgba(0,0,0,0.95)" : "rgba(242,243,247,0.95)";
+  const topBarBg = "rgba(0,0,0,0.95)";
 
   return (
     <div style={{ minHeight:"100vh", background:D.bg }}>

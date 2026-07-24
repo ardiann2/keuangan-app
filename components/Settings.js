@@ -1,42 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { getTheme } from '@/lib/theme'
 
-const DARK = {
-  bg:       '#000000',
-  surface:  '#0D0D0D',
-  surfaceUp:'#141414',
-  surfaceHi:'#1C1C1C',
-  border:   '#2A2A2A',
-  borderHi: '#3A3A3A',
-  textPri:  '#FFFFFF',
-  textSec:  '#888888',
-  textMuted:'#444444',
-  accent:   '#818CF8',
-  accentDim:'#1E2148',
-  income:  { solid:'#34D399', dim:'#0D2E22', border:'#1A5C40' },
-  outcome: { solid:'#FB7185', dim:'#2E0D16', border:'#5C1A26' },
-  saving:  { solid:'#FBBF24', dim:'#2E2105', border:'#5C400A' },
-  asset:   { solid:'#A78BFA', dim:'#1E1240', border:'#3D2480' },
-}
 
-const LIGHT = {
-  bg:       '#F5F5F5',
-  surface:  '#FFFFFF',
-  surfaceUp:'#F0F0F0',
-  surfaceHi:'#E8E8E8',
-  border:   '#DDDDDD',
-  borderHi: '#CCCCCC',
-  textPri:  '#111111',
-  textSec:  '#555555',
-  textMuted:'#999999',
-  accent:   '#4F46E5',
-  accentDim:'#EEF0FF',
-  income:  { solid:'#059669', dim:'#ECFDF5', border:'#A7F3D0' },
-  outcome: { solid:'#E11D48', dim:'#FFF1F2', border:'#FECDD3' },
-  saving:  { solid:'#D97706', dim:'#FFFBEB', border:'#FDE68A' },
-  asset:   { solid:'#7C3AED', dim:'#F5F3FF', border:'#DDD6FE' },
-}
 
 const MN  = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]
 const MNS = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"]
@@ -200,12 +167,12 @@ function DangerZone({ onDeleteAll, D }) {
 }
 
 /* ─── Settings Page ─── */
-export default function Settings({ txs, budgets, onLogout, onDeleteAll, userEmail, isDark, onToggleTheme }) {
-  const D = isDark ? DARK : LIGHT
+export default function Settings({ txs, budgets, onLogout, onDeleteAll, userEmail }) {
+  const D=getTheme() 
 
   return (
     <div style={{ minHeight: '100vh', background: D.bg }}>
-      <div style={{ background: isDark ? 'rgba(0,0,0,0.9)' : 'rgba(245,245,245,0.9)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${D.border}`, padding: '14px 20px', position: 'sticky', top: 0, zIndex: 10 }}>
+      <div style={{ background: 'rgba(0,0,0,0.95)' , backdropFilter: 'blur(12px)', borderBottom: `1px solid ${D.border}`, padding: '14px 20px', position: 'sticky', top: 0, zIndex: 10 }}>
         <h1 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: D.textPri, display: 'flex', alignItems: 'center', gap: 8 }}>
           <i className="ti ti-settings" style={{ fontSize: 18, color: D.accent }} />Pengaturan
         </h1>
@@ -224,34 +191,6 @@ export default function Settings({ txs, budgets, onLogout, onDeleteAll, userEmai
               <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: D.textPri }}>{userEmail}</p>
               <p style={{ margin: '2px 0 0', fontSize: 12, color: D.textMuted }}>Login via Supabase Auth</p>
             </div>
-          </div>
-        </Section>
-
-        {/* Tema */}
-        <Section title="Tampilan" icon="ti-palette" D={D}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: D.textPri }}>
-                {isDark ? '🌙 Mode Malam' : '☀️ Mode Siang'}
-              </p>
-              <p style={{ margin: '3px 0 0', fontSize: 12, color: D.textMuted }}>
-                {isDark ? 'Tampilan gelap, lebih nyaman di malam hari' : 'Tampilan terang, lebih jelas di siang hari'}
-              </p>
-            </div>
-            <button onClick={onToggleTheme} style={{
-              width: 52, height: 28, borderRadius: 14, border: 'none', cursor: 'pointer',
-              position: 'relative', background: isDark ? D.accent : D.border,
-              transition: 'background 0.2s', flexShrink: 0,
-            }}>
-              <div style={{
-                position: 'absolute', top: 4, left: isDark ? 28 : 4,
-                width: 20, height: 20, borderRadius: '50%',
-                background: '#fff', transition: 'left 0.2s',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11,
-              }}>
-                {isDark ? '🌙' : '☀️'}
-              </div>
-            </button>
           </div>
         </Section>
 
@@ -280,7 +219,7 @@ export default function Settings({ txs, budgets, onLogout, onDeleteAll, userEmai
         </Section>
 
         <p style={{ textAlign: 'center', fontSize: 11, color: D.textMuted, marginTop: 8, lineHeight: 1.7 }}>
-          Keuanganku v4.0 · Fullstack · Data tersimpan di Supabase
+          Keuanganku v2.0 · Data tersimpan di Supabase
         </p>
       </div>
     </div>
