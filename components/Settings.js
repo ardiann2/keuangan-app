@@ -120,13 +120,11 @@ function ExportCSV({ txs, D }) {
         Export CSV — {ymFull(selectedMonth)}
       </button>
 
-      <p style={{ margin: 0, fontSize: 11, color: D.textMuted, lineHeight: 1.6 }}>
-        <i className="ti ti-info-circle" style={{ marginRight: 4, fontSize: 12 }} />
-        File CSV bisa dibuka di Excel, Google Sheets, atau Numbers. Termasuk ringkasan total di bagian bawah.
-      </p>
     </div>
   )
 }
+
+
 
 /* ─── Export PDF ─── */
 function ExportPDF({ txs, D }) {
@@ -218,28 +216,16 @@ function ExportPDF({ txs, D }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
       {/* Pilih bulan */}
-     <div style={{ background: D.surfaceHi, borderRadius: 10, padding: '10px 14px' }}>
-        <p style={{ margin: 0, fontSize: 12, color: D.textSec }}>
-          <i className="ti ti-calendar" style={{ marginRight: 6, color: D.accent, fontSize: 13 }} />
-          <strong style={{ color: D.textPri }}>{ymFull(selectedMonth)}</strong>
-          {' '}— {txs.filter(t => getYM(t.date) === selectedMonth).length} transaksi
-        </p>
-      </div>
-
       <button onClick={handleExport} style={{
         width: '100%', padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 700,
         background: D.accent, color: D.bg === '#000000' ? '#000' : '#fff',
         border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
         boxShadow: `0 0 20px ${D.accent}55`,
       }}>
-        <i className="ti ti-file-spreadsheet" style={{ fontSize: 16 }} />
-        Export CSV — {ymFull(selectedMonth)}
+        <i className="ti ti-file-type-pdf" style={{ fontSize: 16 }} />
+        Export PDF — {ymFull(selectedMonth)}
       </button>
 
-      <p style={{ margin: 0, fontSize: 11, color: D.textMuted, lineHeight: 1.6 }}>
-        <i className="ti ti-info-circle" style={{ marginRight: 4, fontSize: 12 }} />
-        File CSV bisa dibuka di Excel, Google Sheets, atau Numbers. Termasuk ringkasan total di bagian bawah.
-      </p>
     </div>
   )
 }
@@ -310,9 +296,19 @@ export default function Settings({ txs, budgets, onLogout, onDeleteAll, userEmai
           </div>
         </Section>
 
-        {/* Export CSV */}
-        <Section title="Export CSV" icon="ti-file-spreadsheet" D={D}>
+        {/* Export CSV & PDF */}
+        <Section title="Export CSV & PDF" D={D}>
           <ExportCSV txs={txs} D={D} />
+
+          <div
+            style={{
+              height: 1,
+              background: D.border,
+              margin: '18px 0',
+              opacity: 0.6,
+            }}
+          />
+
           <ExportPDF txs={txs} D={D} />
         </Section>
 

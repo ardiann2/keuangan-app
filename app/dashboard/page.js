@@ -11,17 +11,28 @@ import Budget    from '@/components/Budget'
 import Settings  from '@/components/Settings'
 
 async function apiFetch(path, method = 'GET', body = null) {
-  const { data: { session } } = await supabase.auth.getSession()
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
   const token = session?.access_token
+
   const res = await fetch(path, {
     method,
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
     body: body ? JSON.stringify(body) : null,
   })
-  return res.json()
+
+  const text = await res.text()
+
+  console.log("API:", path)
+  console.log("Status:", res.status)
+  console.log("Response:", text)
+
+  return text ? JSON.parse(text) : null
 }
 
 function BottomNav({ page, setPage }) {
