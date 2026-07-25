@@ -218,38 +218,27 @@ function ExportPDF({ txs, D }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
       {/* Pilih bulan */}
-      <div>
-        <label style={{ fontSize:11, fontWeight:700, color:D.textMuted, display:'block', marginBottom:8, textTransform:'uppercase', letterSpacing:'0.07em' }}>Pilih Bulan</label>
-        <div style={{ display:'flex', gap:7, overflowX:'auto', paddingBottom:4, scrollbarWidth:'none' }}>
-          {months.map(m => {
-            const active = selectedMonth === m
-            const count = txs.filter(t => getYM(t.date) === m).length
-            return (
-              <button key={m} onClick={() => setSelectedMonth(m)} style={{ flexShrink:0, padding:'7px 14px', borderRadius:20, fontSize:12, fontWeight:700, background:active?D.accent:D.surfaceHi, color:active?'#fff':D.textSec, border:active?'none':`1.5px solid ${D.border}`, cursor:'pointer', transition:'all 0.15s', boxShadow:active?`0 0 12px ${D.accent}55`:'none' }}>
-                {ymShort(m)} <span style={{ opacity:0.7, fontWeight:500 }}>({count})</span>
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Info */}
-      <div style={{ background:D.surfaceHi, borderRadius:10, padding:'10px 14px' }}>
-        <p style={{ margin:0, fontSize:12, color:D.textSec }}>
-          <i className="ti ti-calendar" style={{ marginRight:6, color:D.accent, fontSize:13 }} />
-          <strong style={{ color:D.textPri }}>{ymFull(selectedMonth)}</strong>
+     <div style={{ background: D.surfaceHi, borderRadius: 10, padding: '10px 14px' }}>
+        <p style={{ margin: 0, fontSize: 12, color: D.textSec }}>
+          <i className="ti ti-calendar" style={{ marginRight: 6, color: D.accent, fontSize: 13 }} />
+          <strong style={{ color: D.textPri }}>{ymFull(selectedMonth)}</strong>
           {' '}— {txs.filter(t => getYM(t.date) === selectedMonth).length} transaksi
         </p>
       </div>
 
-      <button onClick={handleExport} disabled={loading} style={{ width:'100%', padding:'13px', borderRadius:12, fontSize:14, fontWeight:700, background:loading?D.surfaceHi:'#052E1A', color:loading?D.textMuted:'#34D399', border:`1.5px solid #064E2E`, cursor:loading?'wait':'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8, transition:'all 0.15s' }}>
-        <i className={`ti ${loading?'ti-loader-2':'ti-file-type-pdf'}`} style={{ fontSize:16 }} />
-        {loading ? 'Membuat PDF...' : `Export PDF — ${ymFull(selectedMonth)}`}
+      <button onClick={handleExport} style={{
+        width: '100%', padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 700,
+        background: D.accent, color: D.bg === '#000000' ? '#000' : '#fff',
+        border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        boxShadow: `0 0 20px ${D.accent}55`,
+      }}>
+        <i className="ti ti-file-spreadsheet" style={{ fontSize: 16 }} />
+        Export CSV — {ymFull(selectedMonth)}
       </button>
 
-      <p style={{ margin:0, fontSize:11, color:D.textMuted, lineHeight:1.6 }}>
-        <i className="ti ti-info-circle" style={{ marginRight:4, fontSize:12 }} />
-        PDF berisi ringkasan & tabel transaksi lengkap. Siap cetak atau dibagikan.
+      <p style={{ margin: 0, fontSize: 11, color: D.textMuted, lineHeight: 1.6 }}>
+        <i className="ti ti-info-circle" style={{ marginRight: 4, fontSize: 12 }} />
+        File CSV bisa dibuka di Excel, Google Sheets, atau Numbers. Termasuk ringkasan total di bagian bawah.
       </p>
     </div>
   )
@@ -324,10 +313,6 @@ export default function Settings({ txs, budgets, onLogout, onDeleteAll, userEmai
         {/* Export CSV */}
         <Section title="Export CSV" icon="ti-file-spreadsheet" D={D}>
           <ExportCSV txs={txs} D={D} />
-        </Section>
-
-        {/* Export PDF */}
-        <Section title="Export PDF" icon="ti-file-type-pdf" D={D}>
           <ExportPDF txs={txs} D={D} />
         </Section>
 
