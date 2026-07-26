@@ -150,7 +150,7 @@ function ExportPDF({ txs, D }) {
       doc.setFontSize(20); doc.setFont('helvetica', 'bold')
       doc.text('Keuanganku', 14, 16)
       doc.setFontSize(11); doc.setFont('helvetica', 'normal')
-      doc.text(`Laporan Keuangan — ${ymFull(selectedMonth)}`, 14, 26)
+      doc.text(`Laporan Keuangan ${ymFull(selectedMonth)}`, 14, 26)
       doc.setFontSize(9)
       doc.text(`Diekspor: ${new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}`, 14, 34)
 
