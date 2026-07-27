@@ -23,9 +23,38 @@ function Section({ title, icon, children, D }) {
     </div>
   )
 }
+  function Toast({ toast, D }) {
+    if (!toast) return null
+
+    return (
+      <div style={{
+        position: 'fixed',
+        bottom: 24,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 9999,
+        background: D.surfaceUp,
+        border: `1.5px solid ${D.borderHi || D.border}`,
+        borderRadius: 16,
+        padding: '14px 18px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        boxShadow: `0 10px 40px rgba(0,0,0,0.5)`,
+      }}>
+        <i className="ti ti-circle-check" style={{ fontSize: 18, color: toast.color || D.accent }} />
+        <div>
+          <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: D.textPri }}>{toast.title}</p>
+          {toast.message && (
+            <p style={{ margin: '2px 0 0', fontSize: 11.5, color: D.textMuted }}>{toast.message}</p>
+          )}
+        </div>
+      </div>
+    )
+  }
 
 /* ─── Export CSV ─── */
-function ExportCSV({ txs, D }) {
+function ExportCSV({ txs, D, onSuccess }) {
   const months = [...new Set([nowYM(), ...txs.map(t => getYM(t.date))])].sort((a, b) => b.localeCompare(a))
   const [selectedMonth, setSelectedMonth] = useState(nowYM())
 
@@ -63,6 +92,11 @@ function ExportCSV({ txs, D }) {
     a.download = `keuanganku-${selectedMonth}.csv`
     a.click()
     URL.revokeObjectURL(url)
+    onSuccess?.({
+      title: 'CSV berhasil diunduh!',
+      message: `keuanganku-${selectedMonth}.csv`,
+      color: D.income?.solid || '#059669',
+    })
   }
 
   return (
@@ -127,7 +161,7 @@ function ExportCSV({ txs, D }) {
 
 
 /* ─── Export PDF ─── */
-function ExportPDF({ txs, D }) {
+function ExportPDF({ txs, D, onSuccess}) {
   const months = [...new Set([nowYM(), ...txs.map(t => getYM(t.date))])].sort((a, b) => b.localeCompare(a))
   const [selectedMonth, setSelectedMonth] = useState(nowYM())
   const [loading, setLoading] = useState(false)
@@ -207,6 +241,11 @@ function ExportPDF({ txs, D }) {
       }
 
       doc.save(`keuanganku-${selectedMonth}.pdf`)
+      onSuccess?.({
+        title: 'PDF berhasil diunduh!',
+        message: `keuanganku-${selectedMonth}.pdf`,
+        color: '#dc2626',
+      })
     } catch(err) {
       console.error(err); alert('Gagal membuat PDF.')
     }
@@ -270,7 +309,16 @@ function DangerZone({ onDeleteAll, D }) {
 
 /* ─── Settings Page ─── */
 export default function Settings({ txs, budgets, onLogout, onDeleteAll, userEmail }) {
-  const D=getTheme() 
+  const D = getTheme()
+  const [toast, setToast] = useState(null)
+  useEffect(() => {
+    if (!toast) return
+    const timer = setTimeout(() => setToast(null), 3000)
+    return () => clearTimeout(timer)
+  }, [toast])
+  const showToast = ({ title, message, color }) => {
+    setToast({ id: Date.now(), title, message, color })
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: D.bg }}>
@@ -298,8 +346,7 @@ export default function Settings({ txs, budgets, onLogout, onDeleteAll, userEmai
 
         {/* Export CSV & PDF */}
         <Section title="Export CSV & PDF" D={D}>
-          <ExportCSV txs={txs} D={D} />
-
+          <ExportCSV txs={txs} D={D} onSuccess={showToast} />
           <div
             style={{
               height: 1,
@@ -308,8 +355,7 @@ export default function Settings({ txs, budgets, onLogout, onDeleteAll, userEmai
               opacity: 0.6,
             }}
           />
-
-          <ExportPDF txs={txs} D={D} />
+          <ExportPDF txs={txs} D={D} onSuccess={showToast} />
         </Section>
 
         {/* Hapus Data */}
@@ -335,6 +381,7 @@ export default function Settings({ txs, budgets, onLogout, onDeleteAll, userEmai
           Keuanganku v2.0 · Data tersimpan di Supabase
         </p>
       </div>
+      <Toast toast={toast} D={D} />
     </div>
   )
 }
