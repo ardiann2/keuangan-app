@@ -23,35 +23,67 @@ function Section({ title, icon, children, D }) {
     </div>
   )
 }
-  function Toast({ toast, D }) {
-    if (!toast) return null
 
-    return (
-      <div style={{
-        position: 'fixed',
-        bottom: 24,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 9999,
-        background: D.surfaceUp,
-        border: `1.5px solid ${D.borderHi || D.border}`,
-        borderRadius: 16,
-        padding: '14px 18px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        boxShadow: `0 10px 40px rgba(0,0,0,0.5)`,
-      }}>
-        <i className="ti ti-circle-check" style={{ fontSize: 18, color: toast.color || D.accent }} />
-        <div>
-          <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: D.textPri }}>{toast.title}</p>
+function Toast({ toast, D }) {
+  if (!toast) return null
+  const accentColor = toast.color || D.accent
+
+  return (
+    <>
+      <style>{`
+        @keyframes toastIn {
+          from { transform: translate(-50%, 30px); opacity: 0; }
+          to   { transform: translate(-50%, 0);     opacity: 1; }
+        }
+        @keyframes toastBar {
+          from { width: 100%; }
+          to   { width: 0%; }
+        }
+      `}</style>
+      <div
+        key={toast.id}
+        style={{
+          position: 'fixed',
+          bottom: 28,
+          left: '50%',
+          zIndex: 9999,
+          minWidth: 280,
+          maxWidth: '92vw',
+          background: D.surfaceUp,
+          borderRadius: 18,
+          padding: '16px 18px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+          boxShadow: `0 12px 32px rgba(0,0,0,0.45), 0 0 0 1px ${D.border}, 0 0 24px ${accentColor}30`,
+          animation: 'toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{
+          width: 38, height: 38, borderRadius: 12, flexShrink: 0,
+          background: `${accentColor}1f`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <i className="ti ti-check" style={{ fontSize: 20, color: accentColor, fontWeight: 700 }} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: D.textPri }}>{toast.title}</p>
           {toast.message && (
-            <p style={{ margin: '2px 0 0', fontSize: 11.5, color: D.textMuted }}>{toast.message}</p>
+            <p style={{ margin: '2px 0 0', fontSize: 11.5, color: D.textMuted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {toast.message}
+            </p>
           )}
         </div>
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, height: 3, borderRadius: '0 0 0 18px',
+          background: accentColor,
+          animation: 'toastBar 3s linear forwards',
+        }} />
       </div>
-    )
-  }
+    </>
+  )
+}
 
 /* ─── Export CSV ─── */
 function ExportCSV({ txs, D, onSuccess }) {
@@ -74,7 +106,6 @@ function ExportCSV({ txs, D, onSuccess }) {
       ])
     ]
 
-    // Hitung ringkasan
     const sum = filtered.reduce((a, t) => ({ ...a, [t.category]: (a[t.category]||0) + t.amount }), {})
     rows.push([])
     rows.push(['RINGKASAN', '', '', ''])
@@ -90,8 +121,11 @@ function ExportCSV({ txs, D, onSuccess }) {
     const a    = document.createElement('a')
     a.href     = url
     a.download = `keuanganku-${selectedMonth}.csv`
+    document.body.appendChild(a)
     a.click()
+    document.body.removeChild(a)
     URL.revokeObjectURL(url)
+
     onSuccess?.({
       title: 'CSV berhasil diunduh!',
       message: `keuanganku-${selectedMonth}.csv`,
@@ -112,7 +146,6 @@ function ExportCSV({ txs, D, onSuccess }) {
         </div>
       </div>
 
-      {/* Pilih bulan */}
       <div>
         <label style={{ fontSize: 11, fontWeight: 700, color: D.textMuted, display: 'block', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Pilih Bulan</label>
         <div style={{ display: 'flex', gap: 7, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' }}>
@@ -135,7 +168,6 @@ function ExportCSV({ txs, D, onSuccess }) {
         </div>
       </div>
 
-      {/* Info bulan */}
       <div style={{ background: D.surfaceHi, borderRadius: 10, padding: '10px 14px' }}>
         <p style={{ margin: 0, fontSize: 12, color: D.textSec }}>
           <i className="ti ti-calendar" style={{ marginRight: 6, color: D.accent, fontSize: 13 }} />
@@ -153,18 +185,20 @@ function ExportCSV({ txs, D, onSuccess }) {
         <i className="ti ti-file-spreadsheet" style={{ fontSize: 16 }} />
         Export CSV — {ymFull(selectedMonth)}
       </button>
-
     </div>
   )
 }
 
-
-
 /* ─── Export PDF ─── */
-function ExportPDF({ txs, D, onSuccess}) {
+function ExportPDF({ txs, D, onSuccess }) {
   const months = [...new Set([nowYM(), ...txs.map(t => getYM(t.date))])].sort((a, b) => b.localeCompare(a))
   const [selectedMonth, setSelectedMonth] = useState(nowYM())
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    import('jspdf')
+    import('jspdf-autotable')
+  }, [])
 
   const handleExport = async () => {
     const filtered = txs.filter(t => getYM(t.date) === selectedMonth)
@@ -177,7 +211,6 @@ function ExportPDF({ txs, D, onSuccess}) {
       const sum = filtered.reduce((a, t) => ({ ...a, [t.category]: (a[t.category]||0) + t.amount }), {})
       const saldo = (sum.income||0) - (sum.outcome||0)
 
-      // Header
       doc.setFillColor(99, 102, 241)
       doc.rect(0, 0, 210, 38, 'F')
       doc.setTextColor(255, 255, 255)
@@ -188,7 +221,6 @@ function ExportPDF({ txs, D, onSuccess}) {
       doc.setFontSize(9)
       doc.text(`Diekspor: ${new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}`, 14, 34)
 
-      // Summary cards
       const cards = [
         { label:'Pemasukan',   value:sum.income  ||0, color:[5,150,105]  },
         { label:'Pengeluaran', value:sum.outcome ||0, color:[220,38,38]  },
@@ -206,7 +238,6 @@ function ExportPDF({ txs, D, onSuccess}) {
         doc.text(`Rp ${new Intl.NumberFormat('id-ID').format(card.value)}`, x+4, 62)
       })
 
-      // Saldo bersih
       doc.setFillColor(...(saldo >= 0 ? [5,150,105] : [220,38,38]))
       doc.roundedRect(14, 73, 182, 14, 3, 3, 'F')
       doc.setTextColor(255,255,255)
@@ -214,7 +245,6 @@ function ExportPDF({ txs, D, onSuccess}) {
       doc.text('Saldo Bersih', 18, 82)
       doc.text(`${saldo>=0?'+':'-'} Rp ${new Intl.NumberFormat('id-ID').format(Math.abs(saldo))}`, 140, 82)
 
-      // Tabel transaksi
       autoTable(doc, {
         startY: 93,
         head: [['No','Tanggal','Kategori','Nominal','Keterangan']],
@@ -232,7 +262,6 @@ function ExportPDF({ txs, D, onSuccess}) {
         margin:{ left:14, right:14 },
       })
 
-      // Footer
       const pages = doc.internal.getNumberOfPages()
       for (let i=1; i<=pages; i++) {
         doc.setPage(i)
@@ -240,11 +269,20 @@ function ExportPDF({ txs, D, onSuccess}) {
         doc.text(`Keuanganku · Halaman ${i} dari ${pages}`, 14, 290)
       }
 
-      doc.save(`keuanganku-${selectedMonth}.pdf`)
+      const pdfBlob = doc.output('blob')
+      const url = URL.createObjectURL(pdfBlob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `keuanganku-${selectedMonth}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+
       onSuccess?.({
         title: 'PDF berhasil diunduh!',
         message: `keuanganku-${selectedMonth}.pdf`,
-        color: '#dc2626',
+        color: '#059669',
       })
     } catch(err) {
       console.error(err); alert('Gagal membuat PDF.')
@@ -254,17 +292,16 @@ function ExportPDF({ txs, D, onSuccess}) {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-      {/* Pilih bulan */}
-      <button onClick={handleExport} style={{
+      <button onClick={handleExport} disabled={loading} style={{
         width: '100%', padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 700,
         background: D.accent, color: D.bg === '#000000' ? '#000' : '#fff',
-        border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        border: 'none', cursor: loading ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
         boxShadow: `0 0 20px ${D.accent}55`,
+        opacity: loading ? 0.7 : 1,
       }}>
         <i className="ti ti-file-type-pdf" style={{ fontSize: 16 }} />
-        Export PDF — {ymFull(selectedMonth)}
+        {loading ? 'Membuat PDF...' : `Export PDF — ${ymFull(selectedMonth)}`}
       </button>
-
     </div>
   )
 }
