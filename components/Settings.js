@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { getTheme } from '@/lib/theme'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { saveAs } from 'file-saver'
 
 const MN  = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]
 const MNS = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"]
@@ -118,14 +119,7 @@ function ExportCSV({ txs, D, onSuccess }) {
 
     const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n')
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' })
-    const url  = URL.createObjectURL(blob)
-    const a    = document.createElement('a')
-    a.href     = url
-    a.download = `keuanganku-${selectedMonth}.csv`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    saveAs(blob, `keuanganku-${selectedMonth}.csv`)
 
     onSuccess?.({
       title: 'CSV berhasil diunduh!',
@@ -264,14 +258,7 @@ function ExportPDF({ txs, D, onSuccess }) {
       }
 
       const pdfBlob = doc.output('blob')
-      const url = URL.createObjectURL(pdfBlob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `keuanganku-${selectedMonth}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+      saveAs(pdfBlob, `keuanganku-${selectedMonth}.pdf`)
 
       onSuccess?.({
         title: 'PDF berhasil diunduh!',
