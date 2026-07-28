@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { getTheme } from '@/lib/theme'
-
-
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 const MN  = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]
 const MNS = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"]
@@ -30,7 +30,7 @@ function Toast({ toast, D }) {
 
   return (
     <>
-      <style>{`
+     <style>{`
         @keyframes toastIn {
           from { transform: translate(-50%, 30px); opacity: 0; }
           to   { transform: translate(-50%, 0);     opacity: 1; }
@@ -46,6 +46,7 @@ function Toast({ toast, D }) {
           position: 'fixed',
           bottom: 28,
           left: '50%',
+          transform: 'translateX(-50%)',
           zIndex: 9999,
           minWidth: 280,
           maxWidth: '92vw',
@@ -56,7 +57,7 @@ function Toast({ toast, D }) {
           alignItems: 'center',
           gap: 14,
           boxShadow: `0 12px 32px rgba(0,0,0,0.45), 0 0 0 1px ${D.border}, 0 0 24px ${accentColor}30`,
-          animation: 'toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+          animation: 'toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
           overflow: 'hidden',
         }}
       >
@@ -195,18 +196,11 @@ function ExportPDF({ txs, D, onSuccess }) {
   const [selectedMonth, setSelectedMonth] = useState(nowYM())
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    import('jspdf')
-    import('jspdf-autotable')
-  }, [])
-
   const handleExport = async () => {
     const filtered = txs.filter(t => getYM(t.date) === selectedMonth)
     if (filtered.length === 0) { alert('Tidak ada transaksi di bulan ini'); return }
     setLoading(true)
     try {
-      const { default: jsPDF } = await import('jspdf')
-      const { default: autoTable } = await import('jspdf-autotable')
       const doc = new jsPDF()
       const sum = filtered.reduce((a, t) => ({ ...a, [t.category]: (a[t.category]||0) + t.amount }), {})
       const saldo = (sum.income||0) - (sum.outcome||0)
