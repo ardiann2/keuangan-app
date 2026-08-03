@@ -87,11 +87,35 @@ function Toast({ toast, D }) {
   )
 }
 
-/* ─── Export CSV ─── */
-function ExportCSV({ txs, D, onSuccess }) {
-  const months = [...new Set([nowYM(), ...txs.map(t => getYM(t.date))])].sort((a, b) => b.localeCompare(a))
-  const [selectedMonth, setSelectedMonth] = useState(nowYM())
+/* ─── Month Picker (dipakai bareng CSV & PDF) ─── */
+function MonthPicker({ months, selectedMonth, setSelectedMonth, txs, D }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <label style={{ fontSize: 11, fontWeight: 700, color: D.textMuted, display: 'block', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Pilih Bulan</label>
+      <div style={{ display: 'flex', gap: 7, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' }}>
+        {months.map(m => {
+          const active = selectedMonth === m
+          const count  = txs.filter(t => getYM(t.date) === m).length
+          return (
+            <button key={m} onClick={() => setSelectedMonth(m)} style={{
+              flexShrink: 0, padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700,
+              background: active ? D.accent : D.surfaceHi,
+              color: active ? (D.bg === '#000000' ? '#000' : '#fff') : D.textSec,
+              border: active ? 'none' : `1.5px solid ${D.border}`,
+              cursor: 'pointer', transition: 'all 0.15s',
+              boxShadow: active ? `0 0 12px ${D.accent}55` : 'none',
+            }}>
+              {ymShort(m)} <span style={{ opacity: 0.7, fontWeight: 500 }}>({count})</span>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
+/* ─── Export CSV ─── */
+function ExportCSV({ txs, D, onSuccess, selectedMonth}) {
   const handleExport = () => {
     const filtered = txs.filter(t => getYM(t.date) === selectedMonth)
     if (filtered.length === 0) { alert('Tidak ada transaksi di bulan ini'); return }
@@ -133,33 +157,11 @@ function ExportCSV({ txs, D, onSuccess }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 4 }}>
         <div style={{ background: D.surfaceHi, borderRadius: 10, padding: '10px 14px' }}>
           <p style={{ margin: '0 0 2px', fontSize: 10, color: D.textMuted, textTransform: 'uppercase', fontWeight: 700 }}>Total Transaksi</p>
-          <p style={{ margin: 0, fontSize: 20, fontWeight: 800, color: D.accent }}>{txs.length}</p>
+          <p style={{ margin: 0, fontSize: 20, fontWeight: 800, color: D.accent }}>{txs.filter(t => getYM(t.date) === selectedMonth).length}</p>
         </div>
         <div style={{ background: D.surfaceHi, borderRadius: 10, padding: '10px 14px' }}>
           <p style={{ margin: '0 0 2px', fontSize: 10, color: D.textMuted, textTransform: 'uppercase', fontWeight: 700 }}>Bulan Dipilih</p>
           <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: D.saving.solid }}>{ymShort(selectedMonth)}</p>
-        </div>
-      </div>
-
-      <div>
-        <label style={{ fontSize: 11, fontWeight: 700, color: D.textMuted, display: 'block', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Pilih Bulan</label>
-        <div style={{ display: 'flex', gap: 7, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' }}>
-          {months.map(m => {
-            const active = selectedMonth === m
-            const count  = txs.filter(t => getYM(t.date) === m).length
-            return (
-              <button key={m} onClick={() => setSelectedMonth(m)} style={{
-                flexShrink: 0, padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700,
-                background: active ? D.accent : D.surfaceHi,
-                color: active ? (D.bg === '#000000' ? '#000' : '#fff') : D.textSec,
-                border: active ? 'none' : `1.5px solid ${D.border}`,
-                cursor: 'pointer', transition: 'all 0.15s',
-                boxShadow: active ? `0 0 12px ${D.accent}55` : 'none',
-              }}>
-                {ymShort(m)} <span style={{ opacity: 0.7, fontWeight: 500 }}>({count})</span>
-              </button>
-            )
-          })}
         </div>
       </div>
 
@@ -178,16 +180,14 @@ function ExportCSV({ txs, D, onSuccess }) {
         boxShadow: `0 0 20px ${D.accent}55`,
       }}>
         <i className="ti ti-file-spreadsheet" style={{ fontSize: 16 }} />
-        Export CSV — {ymFull(selectedMonth)}
+        Export CSV ~ {ymFull(selectedMonth)}
       </button>
     </div>
   )
 }
 
 /* ─── Export PDF ─── */
-function ExportPDF({ txs, D, onSuccess }) {
-  const months = [...new Set([nowYM(), ...txs.map(t => getYM(t.date))])].sort((a, b) => b.localeCompare(a))
-  const [selectedMonth, setSelectedMonth] = useState(nowYM())
+function ExportPDF({ txs, D, onSuccess, selectedMonth }) {
   const [loading, setLoading] = useState(false)
 
   const handleExport = async () => {
@@ -281,7 +281,7 @@ function ExportPDF({ txs, D, onSuccess }) {
         opacity: loading ? 0.7 : 1,
       }}>
         <i className="ti ti-file-type-pdf" style={{ fontSize: 16 }} />
-        {loading ? 'Membuat PDF...' : `Export PDF — ${ymFull(selectedMonth)}`}
+        {loading ? 'Membuat PDF...' : `Export PDF ~ ${ymFull(selectedMonth)}`}
       </button>
     </div>
   )
@@ -328,6 +328,8 @@ function DangerZone({ onDeleteAll, D }) {
 /* ─── Settings Page ─── */
 export default function Settings({ txs, budgets, onLogout, onDeleteAll, userEmail }) {
   const D = getTheme()
+  const [selectedMonth, setSelectedMonth] = useState(nowYM())
+  const months = [...new Set([nowYM(), ...txs.map(t => getYM(t.date))])].sort((a, b) => b.localeCompare(a))
   const [toast, setToast] = useState(null)
   useEffect(() => {
     if (!toast) return
@@ -363,17 +365,12 @@ export default function Settings({ txs, budgets, onLogout, onDeleteAll, userEmai
         </Section>
 
         {/* Export CSV & PDF */}
-        <Section title="Export CSV & PDF" D={D}>
-          <ExportCSV txs={txs} D={D} onSuccess={showToast} />
-          <div
-            style={{
-              height: 1,
-              background: D.border,
-              margin: '18px 0',
-              opacity: 0.6,
-            }}
-          />
-          <ExportPDF txs={txs} D={D} onSuccess={showToast} />
+        <Section title="Export CSV & PDF" D={D} icon="ti-file-download">
+          <MonthPicker months={months} selectedMonth={selectedMonth} setSelectedMonth={setSelectedMonth} txs={txs} D={D} />
+
+          <ExportCSV txs={txs} D={D} onSuccess={showToast} selectedMonth={selectedMonth} />
+          <div style={{ height: 1, background: D.border, margin: '18px 0', opacity: 0.6 }} />
+          <ExportPDF txs={txs} D={D} onSuccess={showToast} selectedMonth={selectedMonth} />
         </Section>
 
         {/* Hapus Data */}
