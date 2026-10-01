@@ -73,8 +73,38 @@ export default function AuthPage() {
   }
 
   return (
-    <div style={{ minHeight:'100vh', background:D.bg, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
-      <div style={{ width:'100%', maxWidth:400 }}>
+    <div style={{ minHeight:'100vh', background:D.bg, display:'flex', alignItems:'center', justifyContent:'center', padding:20, position:'relative', overflow:'hidden' }}>
+          {/* ─── Background ─── */}
+    <style>{`
+      @keyframes bgFloat1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(50px,40px) scale(1.12)} }
+      @keyframes bgFloat2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-60px,-40px) scale(1.18)} }
+      @keyframes bgIcon   { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-16px) rotate(6deg)} }
+    `}</style>
+
+    <div aria-hidden="true" style={{ position:'absolute', inset:0, pointerEvents:'none', overflow:'hidden' }}>
+
+      {/* Grid tipis, memudar ke pinggir */}
+      <div style={{
+        position:'absolute', inset:0,
+        backgroundImage:'linear-gradient(rgba(129,140,248,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(129,140,248,0.07) 1px, transparent 1px)',
+        backgroundSize:'48px 48px',
+        maskImage:'radial-gradient(ellipse at center, #000 20%, transparent 75%)',
+        WebkitMaskImage:'radial-gradient(ellipse at center, #000 20%, transparent 75%)',
+      }} />
+
+      {/* Glow ungu/indigo (kiri atas) */}
+      <div style={{ position:'absolute', top:'-12%', left:'-8%', width:480, height:480, borderRadius:'50%', background:'radial-gradient(circle, rgba(129,140,248,0.28) 0%, transparent 70%)', filter:'blur(40px)', animation:'bgFloat1 14s ease-in-out infinite' }} />
+
+      {/* Glow hijau (kanan bawah) */}
+      <div style={{ position:'absolute', bottom:'-15%', right:'-10%', width:520, height:520, borderRadius:'50%', background:'radial-gradient(circle, rgba(52,211,153,0.16) 0%, transparent 70%)', filter:'blur(50px)', animation:'bgFloat2 18s ease-in-out infinite' }} />
+
+      {/* Ikon keuangan melayang */}
+      <i className="ti ti-coin"        style={{ position:'absolute', top:'14%',    right:'14%', fontSize:44, color:'rgba(129,140,248,0.14)', animation:'bgIcon 7s ease-in-out infinite' }} />
+      <i className="ti ti-chart-line"  style={{ position:'absolute', bottom:'18%', left:'10%',  fontSize:52, color:'rgba(52,211,153,0.13)',  animation:'bgIcon 9s ease-in-out infinite 1s' }} />
+      <i className="ti ti-pig-money"   style={{ position:'absolute', top:'60%',    right:'8%',  fontSize:40, color:'rgba(129,140,248,0.12)', animation:'bgIcon 8s ease-in-out infinite 2s' }} />
+      <i className="ti ti-credit-card" style={{ position:'absolute', top:'22%',    left:'12%',  fontSize:38, color:'rgba(129,140,248,0.12)', animation:'bgIcon 10s ease-in-out infinite 0.5s' }} />
+    </div>
+      <div style={{ width:'100%', maxWidth:400, position:'relative', zIndex:1 }}>
 
         {/* Logo */}
         <div style={{ textAlign:'center', marginBottom:32 }}>
